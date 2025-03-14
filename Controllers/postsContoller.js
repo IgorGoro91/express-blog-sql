@@ -5,6 +5,7 @@ const connection =require('../Data/db.js');
 
 const { query } = require("express");
 const { error } = require("console");
+const { join } = require("path");
 
 function index(req, res) {
 
@@ -38,22 +39,37 @@ function index(req, res) {
 
 function show(req, res) {
 
-const id = parseInt(req.params.id)
+// const id = parseInt(req.params.id)
 
 
-    const post = posts.find(post => post.id === id);
+//     const post = posts.find(post => post.id === id);
     
-    if(!post){
+//     if(!post){
 
-        res.status(404);
+//         res.status(404);
 
-        return res.json({
-            error: "Not Found",
-            message: "Dolce non trovaro"
+//         return res.json({
+//             error: "Not Found",
+//             message: "Dolce non trovaro"
+//         })
+//     }
+
+//         res.json(post);
+
+    const {id} = req.params
+
+    const sql = 'SELECT * FROM posts WHERE id = ?';
+
+    connection.query(sql, [id], (err, results) =>{
+        if(err) return res.status(500).json({
+            error: 'Database Error SHOW'
         })
-    }
 
-        res.json(post);
+        if(results.length === 0) return res.status(404).json({
+            error: 'Not Found'
+        })
+        res.json(results[0]);
+    })
 }
 
 
@@ -146,25 +162,36 @@ function patch(req, res) {
 
 function destroy(req, res) {
 
-    const id = parseInt(req.params.id)
+    // const id = parseInt(req.params.id)
 
 
-    const post = posts.find(post => post.id === id);
+    // const post = posts.find(post => post.id === id);
     
-    if(!post){
+    // if(!post){
 
-        res.status(404);
+    //     res.status(404);
         
-        return res.json({
-            error: "Not Found",
-            message: "Dolce non trovaro"
-        })
-    }
+    //     return res.json({
+    //         error: "Not Found",
+    //         message: "Dolce non trovaro"
+    //     })
+    // }
     
-    posts.splice(posts.indexOf(posts), 1);
+    // posts.splice(posts.indexOf(posts), 1);
 
-    res.sendStatus(204)
+    // res.sendStatus(204)
 
+    const{id} = req.params;
+
+    const sql = 'DELETE FROM posts WHERE id = ?';
+
+    connection.query(sql, [id], (err) =>{
+        if(err) return res.status(500).json({
+            error: 'Database error query Destroy'
+        })
+
+        res.sendStatus(204)
+    })
 
 }
 
